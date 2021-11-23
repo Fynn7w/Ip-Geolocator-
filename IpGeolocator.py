@@ -1,10 +1,10 @@
-#imports the rquired moduls
+#import moduls
+#import os
+#import socket
 import requests
 import time
-import requests
-import socket
+import datetime
 import sys
-import subprocess
 
 
 print("""                  
@@ -18,74 +18,61 @@ print("")
 time.sleep(1)
 print("*************************************************")
 print("Mail: Fynn_Wilhelm@ProtonMail.com\nGitHub: Fynn7w\nFor educational purposes only!")
+print("Type : -show_options to see all useable commands")
 print("*************************************************")
 print("")
-
+time.sleep(1)
+print("------------------------------------------------------------------")
 print("useable commands :")
 print("-show_local_ip (shows local ip)")
 print("-geolocate_ip (geolocate the defined ip address)")
-print("-geolocate_ip -hard_scan (harder scan of option2)")
-print("-change_mac_adr (only works under linux)")
+print("-geolocate_ip -hard_scan (aggressiv scan of the defined ip addres)")
+print("-show_options to see all useable commands")
+print("------------------------------------------------------------------")
 print("")
 
+#waiting for commands...
+command= input()
 
-time.sleep(2)
-
-command = input("")
+#command to geocolate the ip addres
 if command == "-geolocate_ip":
-    a = input("please enter a ip addres :")#user input
-    #get the information about the ip(4) address
-    response = requests.get("https://geolocation-db.com/json/",a).json()
-    #Lists the informations
-    Ip_address = response['IPv4']
-    country = response['country_name']
-    city = response['city']
-    postal = response['postal']
-
-    #prints the informations
-    print("Information about following ip :", Ip_address)
-    time.sleep(1.)
-    print("Country :", country)
-    print("City :", city)
-    print("postal:", postal)
-    print("")
-    time.sleep(2)
-    sys.exit()
-
-if command == "-show_local_ip":
-    hostname = socket.gethostname()#gets hostname
-    local_ip = socket.gethostbyname(hostname)#gets ip of this hostname
-    print("your local ip is :",local_ip)
-    sys.exit()
-
-if command == "-geolocate_ip -hard_scan":
-    a = input("please enter a ip addres :")#user input
-    #get the information about the ip(4) address
-    response = requests.get("https://geolocation-db.com/json/",a).json()
+    ip_input = input("Ip addres :")
+    response = requests.post("http://ip-api.com/batch", json=[
+      {"query": ip_input}
+    ]).json()
     time.sleep(1)
-    print("")
-    print(response)
-    sys.exit()
 
-if command == "-change_mac_adr":
-    print("changing mac address...")
-    subprocess.call(["sudo","ifconfig","ens33","down"])
-    subprocess.call(["sudo","ifconfig","ens33","hw","ether","00:11:22:33:44:55"])
-    subprocess.call(["sudo","ifconfig","ens33","up"])
+    #only print the county Code,Status,City and Country of the ip
+    for ip_info in response:
+        print("Status:",ip_info['status'])
+        print("Country Code:",ip_info['countryCode'])
+        print("Country:",ip_info['country'])
+        print("City:",ip_info['city'])
+        sys.exit() 
+        
 
 
-#shows alle useable commands
-if command == "show_options":
-    print("useable commands :")
+#shows all the usable commands
+if command == "-show_options":
+    print("-geolocate_ip (to locate the defined ip addres)")
     print("-show_local_ip (shows local ip)")
-    print("-geolocate_ip (geolocate the defined ip address)")
-    print("-geolocate_ip -hard_scan (harder scan of option2)")
-    print("-change_mac-adr (changes your current mac address)")
-    sys.exit()
+    print("-show_options to see all useable commands")
+    input()
 
 
-#if command isnt defined
+#shows all information about the Ip
+if command == "-geolocate_ip -hard_scan":
+    ip_input = input("Ip addres :")
+    response = requests.post("http://ip-api.com/batch", json=[
+      {"query": ip_input}
+    ]).json()
+    time.sleep(1)
+    for ip_info in response:#prints the results(\n)
+        for Xitems,Yitems in ip_info.items():
+            print(Xitems,Yitems)
+
+
+
+#if command wasnt found       
 else:
-    print("undefined command!")
-    print("to see a list of all the commands type : show_options")
-    sys.exit()
+    print("command not found\nType: -show_options to see the avaible commands")
